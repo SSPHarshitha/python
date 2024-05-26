@@ -1,0 +1,58 @@
+import requests
+import json
+from datetime import datetime
+
+def fetch_weather_data(api_key, city):
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    complete_url = f"{base_url}q={city}&appid={api_key}&units=metric"
+    response = requests.get(complete_url)
+    data = response.json()
+    return data
+
+def fetch_forecast_data(api_key, city):
+    base_url = "http://api.openweathermap.org/data/2.5/forecast?"
+    complete_url = f"{base_url}q={city}&appid={api_key}&units=metric"
+    response = requests.get(complete_url)
+    data = response.json()
+    return data
+
+def display_current_weather(data):
+    if data["cod"] != "404":
+        main_data = data["main"]
+        weather_data = data["weather"][0]
+        temperature = main_data["temp"]
+        feels_like = main_data["feels_like"]
+        description = weather_data["description"]
+        print(f"Current Temperature: {temperature}°C")
+        print(f"Feels Like: {feels_like}°C")
+        print(f"Weather Description: {description}")
+    else:
+        print("City not found!")
+
+def display_forecast(data):
+    if data["cod"] != "404":
+        print("5 Day Forecast:")
+        for forecast in data["list"]:
+            timestamp = forecast["dt"]
+            date = datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            temperature = forecast["main"]["temp"]
+            description = forecast["weather"][0]["description"]
+            print(f"Date: {date}, Temperature: {temperature}°C, Description: {description}")
+    else:
+        print("City not found!")
+
+def main():
+    api_key = "YOUR_API_KEY"  # Replace with your OpenWeatherMap API key
+    city = input("Enter city name: ")
+    
+    current_weather_data = fetch_weather_data(api_key, city)
+    forecast_data = fetch_forecast_data(api_key, city)
+    
+    print("\nCurrent Weather Conditions:")
+    display_current_weather(current_weather_data)
+    
+    print("\nForecast:")
+    display_forecast(forecast_data)
+
+if __name__ == "__main__":
+    main()
